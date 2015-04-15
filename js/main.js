@@ -5,24 +5,6 @@ var	hashLoc,
 		hashLoc = hash.p;
 		var s = true;
 		switch(hash.p) {
-			case 'client':
-				if(hash.d == 'info')
-					hashLoc += '_' + hash.id;
-				break;
-			case 'zayav':
-				if(hash.d == 'info')
-					hashLoc += '_' + hash.id;
-				else if(hash.d == 'add')
-					hashLoc += '_add' + (REGEXP_NUMERIC.test(hash.id) ? '_' + hash.id : '');
-				else if(!hash.d)
-					s = false;
-				break;
-			case 'zp':
-				if(hash.d == 'info')
-					hashLoc += '_' + hash.id;
-				else
-					s = false;
-				break;
 			default:
 				if(hash.d) {
 					hashLoc += '_' + hash.d;
@@ -34,6 +16,48 @@ var	hashLoc,
 			VK.callMethod('setLocation', hashLoc);
 	};
 
+
 $(document)
-	.on('click', '', function() {
+	.on('click', '#project .unit', function() {
+		location.href = URL + '&p=main&d=project&d1=info&id=' + $(this).attr('val');
+	})
+
+	.ready(function() {
+		if($('#project').length) {
+			$('.add').click(function() {
+				var t = $(this),
+					html = '<table id="project-tab-add">' +
+						'<tr><td class="label r">Название:<td><input id="name" type="text" />' +
+						'<tr><td class="label r top">Описание:<td><textarea id="about"></textarea>' +
+						'</table>',
+					dialog = _dialog({
+						head:'Добавление нового проекта',
+						content:html,
+						submit:submit
+					});
+				$('#name').focus().keyEnter(submit);
+				$('#about').autosize();
+				function submit() {
+					var send = {
+						op:'project_add',
+						name:$('#name').val(),
+						about:$('#about').val()
+					};
+					if(!send.name) {
+						dialog.err('Не указано название');
+						$('#name').focus();
+					} else {
+						dialog.process();
+						$.post(AJAX_MAIN, send, function(res) {
+							if(res.success) {
+								$('#spisok').html(res.html);
+								dialog.close();
+								_msg('Новый проект добавлен');
+							} else
+								dialog.abort();
+						}, 'json');
+					}
+				}
+			});
+		}
 	});

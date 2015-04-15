@@ -1,0 +1,14 @@
+#project-tab-add{border-spacing:10px}
+#project-tab-add #name{width:240px}
+#project-tab-add #about{width:240px;height:50px}
+
+#project{margin:15px 0 20px}
+#project .unit{
+	margin:10px 20px;
+	padding:5px 8px;
+	background-color:#eef2ff;
+	cursor:pointer;
+}
+#project .unit:hover{background-color:#d8ddf8}
+#project .unit h1{font:bold 14px Tahoma}
+#project .unit h2{color:#555}
