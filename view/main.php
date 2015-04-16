@@ -21,31 +21,6 @@ function _hashRead() {
 	unset($_GET['d1']);
 	unset($_GET['id']);
 	switch($_GET['p']) {
-		case 'client':
-			if(isset($r[1]))
-				if(preg_match(REGEXP_NUMERIC, $r[1])) {
-					$_GET['d'] = 'info';
-					$_GET['id'] = intval($r[1]);
-				}
-			break;
-		case 'zayav':
-			if(isset($r[1]))
-				if(preg_match(REGEXP_NUMERIC, $r[1])) {
-					$_GET['d'] = 'info';
-					$_GET['id'] = intval($r[1]);
-				} else {
-					$_GET['d'] = $r[1];
-					if(isset($r[2]))
-						$_GET['id'] = intval($r[2]);
-				}
-			break;
-		case 'zp':
-			if(isset($r[1]))
-				if(preg_match(REGEXP_NUMERIC, $r[1])) {
-					$_GET['d'] = 'info';
-					$_GET['id'] = intval($r[1]);
-				}
-			break;
 		default:
 			if(isset($r[1])) {
 				$_GET['d'] = $r[1];
@@ -123,7 +98,7 @@ function project() {
 	return
 		mainPageDop().
 		'<div id="project">'.
-			'<div class="headName">Мои проекты<a class="add">Добавить</a></div>'.
+			'<div class="headName">Мои проекты<a class="add">Новый проект</a></div>'.
 			'<div id="spisok">'.$data['spisok'].'</div>'.
 		'</div>';
 }//project()
@@ -143,7 +118,8 @@ function project_spisok($v=array(), $i='all') {
 		'spisok' => ''
 	);
 
-	$sql = "SELECT *
+	$sql = "SELECT *,
+				   0 `task_count`
 			FROM `project`
 			WHERE ".$cond."
 			ORDER BY `id`";
@@ -153,9 +129,18 @@ function project_spisok($v=array(), $i='all') {
 		$project[$r['id']] = $r;
 	}
 
+	$sql = "SELECT `project_id`,
+				   COUNT(`id`) `count`
+			FROM `task`
+			GROUP BY `project_id`";
+	$q = query($sql);
+	while($r = mysql_fetch_assoc($q))
+		$project[$r['project_id']]['task_count'] = $r['count'];
+
 	foreach($project as $id => $r) {
 		$send['spisok'] .=
-			'<div class="unit" id="u'.$id.'" val="'.$id.'">'.
+			'<div class="unit" val="'.$id.'">'.
+				($r['task_count'] ? '<div class="tc">Задачи: '.$r['task_count'].'</div>' : '').
 				'<h1>'.$r['name'].'</h1>'.
 				'<h2>'.$r['about'].'</h2>'.
 			'</div>';
@@ -178,10 +163,58 @@ function project_info() {
 	if(!$r = query_assoc($sql))
 		return 'Проекта не существует.';
 
+	$v = array(
+		'project_id' => $id
+	);
+	$task = task_spisok($v);
 	return
+		'<script type="text/javascript">'.
+			'var PROJECT={id:'.$id.'};'.
+		'</script>'.
 		mainPageDop().
 		'<div id="project-info">'.
 			'<div class="headName">'.$r['name'].'<a class="add">Новая задача</a></div>'.
+			'<div id="spisok">'.$task['spisok'].'</div>'.
 		'</div>';
-}//project()
+}//project_info()
+function task_spisok($v=array(), $i='all') {
+	$cond = "`project_id`=".$v['project_id']." AND `owner_id`=".VIEWER_ID;
+
+	$all = query_value("SELECT COUNT(*) FROM `task` WHERE ".$cond);
+
+	if(!$all)
+		return array(
+			'all' => 0,
+			'spisok' => '<div class="_empty">Задач нет</div>'
+		);
+
+	$send = array(
+		'all' => $all,
+		'spisok' => ''
+	);
+
+	$sql = "SELECT *
+			FROM `task`
+			WHERE ".$cond."
+			ORDER BY `id`";
+	$q = query($sql);
+	$task = array();
+	while($r = mysql_fetch_assoc($q)) {
+		$task[$r['id']] = $r;
+	}
+
+	$n = 1;
+	foreach($task as $id => $r) {
+		$send['spisok'] .=
+			'<div class="task_unit" val="'.$id.'">'.
+				'<h1><span>'.$n.'.</span><b>'.$r['name'].'</b></h1>'.
+			'</div>';
+		$n++;
+	}
+
+	switch($i) {
+		case 'spisok': return $send['spisok'];
+		default: return $send;
+	}
+}//task_spisok()
 

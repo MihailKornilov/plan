@@ -1,4 +1,5 @@
 <?php
+
 define('DOCUMENT_ROOT', dirname(__FILE__));
 require_once(DOCUMENT_ROOT.'/syncro.php');
 
@@ -14,8 +15,6 @@ _getVkUser();
 function _getVkUser() {//Получение данных о пользователе
 	define('VERSION', 1);
 	return;
-	if(CRON)
-		return;
 	$u = _viewer();
 	define('VIEWER_NAME', $u['name']);
 	define('VIEWER_COUNTRY_ID', $u['country_id']);
