@@ -21,6 +21,45 @@ $(document)
 	.on('click', '#project .unit', function() {
 		location.href = URL + '&p=main&d=project&d1=info&id=' + $(this).attr('val');
 	})
+	.on('click', '#project-info .action-add', function() {//добавление конкретного действия
+		var t = $(this),
+			p = t.parent().parent(),
+			head = p.find('.name').html(),
+			task_id = p.attr('val'),
+			html = '<table id="action-add-tab">' +
+				'<tr><td class="label r">Проект:<td><b>' + PROJECT.name + '</b>' +
+				'<tr><td class="label r">Задача:<td><u>' + head + '</u>' +
+				'<tr><td class="label r">Действие:<td><input id="name" type="text" />' +
+				'</table>',
+			dialog = _dialog({
+				head:'Добавление действия к задаче',
+				content:html,
+				submit:submit
+			});
+		$('#name').focus().keyEnter(submit);
+		$('#about').autosize();
+		function submit() {
+			var send = {
+				op:'action_add',
+				task_id:task_id,
+				name:$('#name').val()
+			};
+			if(!send.name) {
+				dialog.err('Не указано название');
+				$('#name').focus();
+			} else {
+				dialog.process();
+				$.post(AJAX_MAIN, send, function(res) {
+					if(res.success) {
+						$('#spisok').html(res.html);
+						dialog.close();
+						_msg('Новое действие добавлено');
+					} else
+						dialog.abort();
+				}, 'json');
+			}
+		}
+	})
 
 	.ready(function() {
 		if($('#project').length) {

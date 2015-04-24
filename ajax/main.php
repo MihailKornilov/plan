@@ -54,6 +54,36 @@ switch(@$_POST['op']) {
 		$send['html'] = utf8(task_spisok($v, 'spisok'));
 		jsonSuccess($send);
 		break;
+	case 'action_add':
+		if(!$task_id = _num($_POST['task_id']))
+			jsonError();
+
+		$name = _txt($_POST['name']);
+
+		if(empty($name))
+			jsonError();
+
+		$sql = "SELECT * FROM `task` WHERE `owner_id`=".VIEWER_ID." AND `id`=".$task_id;
+		if(!$r = query_assoc($sql))
+			jsonError();
+
+		$sql = "INSERT INTO `action` (
+					`owner_id`,
+					`task_id`,
+					`name`
+				) VALUES (
+					".VIEWER_ID.",
+					".$task_id.",
+					'".addslashes($name)."'
+				)";
+		query($sql);
+
+		$v = array(
+			'project_id' => $r['project_id']
+		);
+		$send['html'] = utf8(task_spisok($v, 'spisok'));
+		jsonSuccess($send);
+		break;
 }
 
 jsonError();

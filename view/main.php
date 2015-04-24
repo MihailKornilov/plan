@@ -169,7 +169,10 @@ function project_info() {
 	$task = task_spisok($v);
 	return
 		'<script type="text/javascript">'.
-			'var PROJECT={id:'.$id.'};'.
+			'var PROJECT={'.
+				'id:'.$id.','.
+				'name:"'.$r['name'].'"'.
+			'};'.
 		'</script>'.
 		mainPageDop().
 		'<div id="project-info">'.
@@ -200,17 +203,37 @@ function task_spisok($v=array(), $i='all') {
 	$q = query($sql);
 	$task = array();
 	while($r = mysql_fetch_assoc($q)) {
+		$r['action'] = '';
 		$task[$r['id']] = $r;
 	}
 
+
+	$sql = "SELECT *
+			FROM `action`
+			WHERE `task_id` IN (".implode(',', array_keys($task)).")
+			ORDER BY `id`";
+	$q = query($sql);
+	while($r = mysql_fetch_assoc($q)) {
+		$task[$r['task_id']]['action'] .= '<div class="act">'.$r['name'].'</div>';
+	}
+
 	$n = 1;
+	$send['spisok'] = '<table class="_spisok _money">';
 	foreach($task as $id => $r) {
 		$send['spisok'] .=
-			'<div class="task_unit" val="'.$id.'">'.
-				'<h1><span>'.$n.'.</span><b>'.$r['name'].'</b></h1>'.
-			'</div>';
+			'<tr val="'.$id.'">'.
+				'<td class="n">'.$n.
+				'<td>'.
+					'<div class="name">'.$r['name'].'</div>'.
+					$r['action'].
+				'<td class="ed">'.
+					'<div class="img_add action-add m30'._tooltip('Добавить конкретное действие', -185, 'r').'</div>'.
+					'<div class="img_edit'._tooltip('Редактировать задачу', -133, 'r').'</div>'.
+					'<div class="img_del'._tooltip('Удалить задачу', -92, 'r').'</div>';
 		$n++;
 	}
+
+	$send['spisok'] .= '</table>';
 
 	switch($i) {
 		case 'spisok': return $send['spisok'];

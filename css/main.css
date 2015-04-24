@@ -26,11 +26,20 @@
 #task-tab-add #name{width:310px}
 
 #project-info{min-height:250px}
+#project-info .headName{margin-top:15px}
 #project-info #spisok{margin:10px 20px}
+#project-info .n{
+	font-size:12px;
+	color:#777;
+	width:20px;
+	text-align:right;
+}
+#project-info .name{font-size:12px;font-weight:bold}
+#project-info .act{color:#555;margin-left:10px}
+#project-info .ed{padding-top:5px}
 
-.task_unit{margin-bottom:15px}
-.task_unit span{font-size:12px;color:#777;margin-right:5px}
-.task_unit b{font-size:12px}
+#action-add-tab{border-spacing:10px}
+#action-add-tab #name{width:240px}
 
 
 
