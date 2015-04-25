@@ -1,6 +1,6 @@
 <?php
 function _hashRead() {
-	$_GET['p'] = isset($_GET['p']) ? $_GET['p'] : 'main';
+	$_GET['p'] = isset($_GET['p']) ? $_GET['p'] : 'project';
 	if(empty($_GET['hash'])) {
 		define('HASH_VALUES', false);
 		if(APP_START) {// восстановление последней посещённой страницы
@@ -61,35 +61,28 @@ function _header() {
 
 function _mainLinks() {
 	global $html;
-	$links = array(
-		array(
-			'name' => 'Главная',
-			'page' => 'main',
-			'show' => 1
-		)
-	);
 
-	$send = '<div id="mainLinks">';
-	foreach($links as $l)
-		if($l['show']) {
-			$sel = $l['page'] == $_GET['p'] ? ' class="sel"' : '';
-			$send .=
-				'<a href="'.URL.'&p='.$l['page'].'"'.$sel.'>'.
-					$l['name'].
-				'</a>';
-		}
-	$send .= '</div>';
-	$html .= $send;
+	define('MAIN_PROJECT', $_GET['p'] == 'project' ? ' class="sel"' : '');
+	define('MAIN_PEOPLE', $_GET['p'] == 'people' ? ' class="sel"' : '');
+	define('MAIN_PLACE', $_GET['p'] == 'place' ? ' class="sel"' : '');
+	define('MAIN_MONEY', $_GET['p'] == 'money' ? ' class="sel"' : '');
+
+	$html .=
+		'<div id="mainLinks">'.
+			'<a href="'.URL.'&p=project"'.MAIN_PROJECT.'>Проекты</a>'.
+			'<a href="'.URL.'&p=people"'.MAIN_PEOPLE.'>Люди</a>'.
+			'<a href="'.URL.'&p=place"'.MAIN_PLACE.'>Места</a>'.
+			'<a href="'.URL.'&p=money"'.MAIN_MONEY.'>Деньги</a>'.
+		'</div>';
 }//_mainLinks()
 
 
 function mainPageDop() {
 	return
 		'<div id="dopLinks">'.
-			'<a class="link sel" href="'.URL.'&p=main&d=project">Проекты</a>'.
-			'<a class="link">Люди</a>'.
-			'<a class="link">Места</a>'.
-			'<a class="link">Деньги</a>'.
+			'<a class="link sel" href="'.URL.'&p=project&d=list">Список</a>'.
+			'<a class="link">Сегодня</a>'.
+			'<a class="link">Календарь</a>'.
 		'</div>';
 }
 
@@ -171,12 +164,16 @@ function project_info() {
 		'<script type="text/javascript">'.
 			'var PROJECT={'.
 				'id:'.$id.','.
-				'name:"'.$r['name'].'"'.
+				'name:"'.addslashes($r['name']).'",'.
+				'about:"'.addslashes($r['about']).'"'.
 			'};'.
 		'</script>'.
-		mainPageDop().
 		'<div id="project-info">'.
-			'<div class="headName">'.$r['name'].'<a class="add">Новая задача</a></div>'.
+			'<div class="headName">'.
+				$r['name'].
+				'<div id="proect-edit" class="img_edit'._tooltip('Редактировать данные проекта', -100).'</div>'.
+				'<a class="add">Новая задача</a>'.
+			'</div>'.
 			'<div id="spisok">'.$task['spisok'].'</div>'.
 		'</div>';
 }//project_info()
@@ -218,7 +215,9 @@ function task_spisok($v=array(), $i='all') {
 	}
 
 	$n = 1;
-	$send['spisok'] = '<table class="_spisok _money">';
+	$send['spisok'] =
+		'<div id="task-count">Показан'._end($all, 'а ', 'о ').$all.' задач'._end($all, 'а', 'и', '').'.</div>'.
+		'<table class="_spisok _money">';
 	foreach($task as $id => $r) {
 		$send['spisok'] .=
 			'<tr val="'.$id.'">'.
@@ -228,8 +227,8 @@ function task_spisok($v=array(), $i='all') {
 					$r['action'].
 				'<td class="ed">'.
 					'<div class="img_add action-add m30'._tooltip('Добавить конкретное действие', -185, 'r').'</div>'.
-					'<div class="img_edit'._tooltip('Редактировать задачу', -133, 'r').'</div>'.
-					'<div class="img_del'._tooltip('Удалить задачу', -92, 'r').'</div>';
+					'<div class="img_edit task-edit'._tooltip('Редактировать задачу', -133, 'r').'</div>'.
+					'<div class="img_del task-del'._tooltip('Удалить задачу', -92, 'r').'</div>';
 		$n++;
 	}
 

@@ -6,15 +6,10 @@ _header();
 _mainLinks();
 
 switch($_GET['p']) {
-	case 'main':
+	case 'project':
 		switch(@$_GET['d']) {
-			case 'project':
-				if (@$_GET['d1'] == 'info') {
-					$html .= project_info();
-					break;
-				}
-				$html .= project();
-				break;
+			case 'info': $html .= project_info(); break;
+			case 'list':
 			default: $html .= project();
 		}
 		break;

@@ -19,8 +19,122 @@ var	hashLoc,
 
 $(document)
 	.on('click', '#project .unit', function() {
-		location.href = URL + '&p=main&d=project&d1=info&id=' + $(this).attr('val');
+		location.href = URL + '&p=project&d=info&id=' + $(this).attr('val');
 	})
+
+	.on('click', '#proect-edit', function() {
+		var html = '<table id="proect-edit-tab">' +
+				'<tr><td class="label r">Название:<td><input id="name" type="text" value="' + PROJECT.name + '" />' +
+				'<tr><td class="label r top">Описание:<td><textarea id="about">' + PROJECT.about + '</textarea>' +
+				'</table>',
+			dialog = _dialog({
+				head:'Редактирование проекта',
+				content:html,
+				butSubmit:'Сохранить',
+				submit:submit
+			});
+		$('#name').focus().keyEnter(submit);
+		$('#about').autosize();
+		function submit() {
+			var send = {
+				op:'project_edit',
+				id:PROJECT.id,
+				name:$('#name').val(),
+				about:$('#about').val()
+			};
+			if(!send.name) {
+				dialog.err('Не указано название');
+				$('#name').focus();
+			} else {
+				dialog.process();
+				$.post(AJAX_MAIN, send, function(res) {
+					if(res.success) {
+						dialog.close();
+						_msg('Изменено');
+						document.location.reload();
+					} else
+						dialog.abort();
+				}, 'json');
+			}
+		}
+	})
+
+	.on('click', '.task-edit', function() {
+		var t = $(this),
+			p = t.parent().parent(),
+			task_id = p.attr('val'),
+			task_name = p.find('.name').html(),
+			html = '<table id="task-edit-tab">' +
+				'<tr><td class="label r">Проект:<td><b>' + PROJECT.name + '</b>' +
+				'<tr><td class="label r">Задача:<td><input id="name" type="text" value="' + task_name + '" />' +
+				'</table>',
+			dialog = _dialog({
+				width:430,
+				head:'Редактирование задачи',
+				content:html,
+				butSubmit:'Сохранить',
+				submit:submit
+			});
+		$('#name').focus().keyEnter(submit);
+		function submit() {
+			var send = {
+				op:'task_edit',
+				task_id:task_id,
+				name:$('#name').val()
+			};
+			if(!send.name) {
+				dialog.err('Не указано название');
+				$('#name').focus();
+			} else {
+				dialog.process();
+				$.post(AJAX_MAIN, send, function(res) {
+					if(res.success) {
+						$('#spisok').html(res.html);
+						dialog.close();
+						_msg('Изменено');
+					} else
+						dialog.abort();
+				}, 'json');
+			}
+		}
+	})
+	.on('click', '.task-del', function() {
+		var t = $(this),
+			p = t.parent().parent(),
+			task_id = p.attr('val'),
+			task_name = p.find('.name').html(),
+			html =
+				'<center>' +
+					'<br />' +
+					'Подтвердите удаление задачи<br />' +
+					'<b>' + task_name + '</b>.' +
+					'<br />' +
+					'<br />' +
+				'</center>',
+			dialog = _dialog({
+				width:300,
+				head:'Удаление задачи',
+				content:html,
+				butSubmit:'Удалить',
+				submit:submit
+			});
+		function submit() {
+			var send = {
+				op:'task_del',
+				task_id:task_id
+			};
+			dialog.process();
+			$.post(AJAX_MAIN, send, function(res) {
+				if(res.success) {
+					$('#spisok').html(res.html);
+					dialog.close();
+					_msg('Удалено');
+				} else
+					dialog.abort();
+			}, 'json');
+		}
+	})
+
 	.on('click', '#project-info .action-add', function() {//добавление конкретного действия
 		var t = $(this),
 			p = t.parent().parent(),

@@ -27,16 +27,27 @@
 
 #project-info{min-height:250px}
 #project-info .headName{margin-top:15px}
+#project-info .headName .img_edit{position:relative;top:1px;left:5px}
+#project-info #task-count{margin-bottom:10px}
 #project-info #spisok{margin:10px 20px}
 #project-info .n{
 	font-size:12px;
 	color:#777;
 	width:20px;
 	text-align:right;
+	vertical-align:top;
 }
 #project-info .name{font-size:12px;font-weight:bold}
 #project-info .act{color:#555;margin-left:10px}
 #project-info .ed{padding-top:5px}
+
+#proect-edit-tab{border-spacing:10px}
+#proect-edit-tab #name{width:240px}
+#proect-edit-tab #about{width:240px;height:50px}
+
+#task-edit-tab{border-spacing:10px}
+#task-edit-tab #name{width:320px}
+
 
 #action-add-tab{border-spacing:10px}
 #action-add-tab #name{width:240px}
